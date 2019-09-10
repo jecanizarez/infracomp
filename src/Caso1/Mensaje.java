@@ -14,19 +14,25 @@ public class Mensaje {
 	 */
 	private Cliente cliente; 
 	
+	private boolean listo; 
+	
+	private Buffer buffer;
+
 	/**
 	 * Metodo constructor.
 	 * @param numero
 	 * @param id
 	 */
-	
-	public Mensaje(int numero, int id, Cliente cliente)
+
+	public Mensaje(int numero, int id, Cliente cliente, Buffer buffer)
 	{
 		this.numero = numero; 
 		this.id = id;
 		this.cliente = cliente; 
+		listo = false; 
+		this.buffer = buffer;
 	}
-	
+
 	public int getNumero()
 	{
 		return numero;
@@ -39,20 +45,41 @@ public class Mensaje {
 	{
 		return cliente;
 	}
-	public void dormirCliente()
+	public void atenderMensaje()
+	{
+		this.numero = ++numero; 
+	}
+	public synchronized void dormirCliente()
 	{
 		try
 		{
-		cliente.wait();
+            wait();
 		}
 		catch(Exception e)
 		{
 			System.out.println("F");
+			e.printStackTrace();
 		}
 	}
-	public void despertarClientes()
+	public synchronized void despertarCliente()
 	{
-		cliente.notifyAll();
+		notify();
+	}
+	public void almacenarEnBuffer()
+	{
+		buffer.almacenarMensaje(this);
+	}
+	public void notificarBuffer()
+	{
+		buffer.reducirClientes();
+	}
+	public void setListo()
+	{
+		listo = true;
+	}
+	public boolean getListo()
+	{
+		return listo;
 	}
 
 

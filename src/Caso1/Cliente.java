@@ -14,26 +14,49 @@ public class Cliente extends Thread {
 	 */
 	private int numMensajes;
 	
+	private Mensaje[] mensajes; 
+	
+	/**
+	 * Metodo constructor
+	 * @param pId
+	 * @param pBuffer
+	 * @param mensajes
+	 */
+	
 	public Cliente(int pId,Buffer pBuffer, int mensajes)
 	{
 		buffer = pBuffer; 
 		numMensajes = mensajes; 
 		id = pId; 
+		this.mensajes = new Mensaje[mensajes];
 	}
 	public Mensaje generarMensaje()
 	{
-		return null;
+		return new Mensaje(id, id, this, buffer);
 	}
 	public void run()
 	{
 		for(int i = 0; i < numMensajes; i++)
 		{
-			Mensaje mensaje = generarMensaje();
-			buffer.almacenarMensajeNoListo(mensaje);
-			System.out.println("El cliente: "+id+ "Almaceno su mensaje");
-			buffer.retirarMensajeListo(mensaje);
-			System.out.println("El cliente: "+id+ "Retiro su mensaje");
+			mensajes[i] = generarMensaje(); 
 		}
+		for(int i = 0; i < numMensajes; i++)
+		{
+			System.out.println("El cliente "+ id + "va a almacenar el mensaje");
+			mensajes[i].almacenarEnBuffer();
+			if(mensajes[i].getListo() && mensajes[i].getNumero() == id+1)
+			{
+				System.out.println("Mi mensaje es correcto");
+			}
+			else
+			{
+				System.out.println("Mi mensaje no es correcto");
+			}
+		}
+	}
+	public Buffer getBuffer()
+	{
+		return buffer;
 	}
 	
 

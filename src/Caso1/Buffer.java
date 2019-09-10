@@ -6,130 +6,67 @@ import java.util.Hashtable;
 import javax.sql.rowset.spi.SyncResolver;
 
 public class Buffer {
-	private ArrayList<Mensaje> mensajesNoListo; 
-	private Hashtable<Integer, Mensaje> mensajesListo; 
-
-
+	/**
+	 * Mensajes almacenados en el buffer
+	 */
+	private ArrayList<Mensaje> mensajes; 
+	/**
+	 * Tamaño del buffer
+	 */
 	private int tamaño; 
-	Object lleno; 
-	Object vacio; 	
-	public Buffer(int tamaño)
+	/**
+	 * Indica el numero de clientes
+	 */
+	private int clientes;
+
+	Object obj;
+	/**
+	 * Metodo constructors
+	 * @param tamaño
+	 * @param clientes
+	 */
+	public Buffer(int tamaño, int pClientes)
 	{
 		this.tamaño = tamaño; 
-		mensajesListo = new Hashtable<Integer, Mensaje>();
-		mensajesNoListo = new ArrayList<Mensaje>(); 
-		lleno = new Object(); 
-		vacio = new Object();
+		clientes = pClientes; 
+		mensajes = new ArrayList<Mensaje>(); 
+		obj = new Object();
+
 	}
-	public  void almacenarMensajeNoListo(Mensaje mensaje) 
+	public synchronized  void almacenarMensaje(Mensaje mensaje) 
 	{
-		while(mensajesListo.size() + mensajesNoListo.size()== tamaño)
+		while(mensajes.size()== tamaño)
 		{
-			synchronized (lleno) 
+			try 
 			{
-				try 
-				{
-					lleno.wait();
-				} catch (Exception e) {
-					System.out.println("F");
-				}
+				wait();
+			} catch (Exception e) {
+				System.out.println("F");
 			}
 		}
-		synchronized (this) 
-		{
-			mensajesNoListo.add(mensaje);
-		}
-		synchronized (vacio) 
-		{
-			vacio.notify();
-		}
+		System.out.println("Se añadio el mensaje del cliente " +mensaje.getId());
+		mensajes.add(mensaje);
+		mensaje.dormirCliente();
 	}
-	public  void almacenarMensajeListo(Mensaje mensaje) 
+
+	public synchronized  Mensaje retirarMensaje()
 	{
-		while(mensajesListo.size() + mensajesNoListo.size()== tamaño)
-		{
-			synchronized (lleno) 
-			{
-				try 
-				{
-					lleno.wait();
-				} catch (Exception e) {
-					System.out.println("F");
-				}
-			}
-		}
-		synchronized (this) 
-		{
-			mensajesListo.put(mensaje.getId(), mensaje);
-		}
-		synchronized (vacio) 
-		{
-			vacio.notify();
-		}
+            
+			Mensaje retorno = mensajes.remove(0);
+			System.out.println("El servidor retiro el mensaje " + retorno.getId());
+			notify();
+			return retorno;
+		
+		
 	}
 
-	public synchronized Mensaje retirarMensajeListo(Mensaje mensaje)
+	public synchronized void reducirClientes()
 	{
-		while(mensajesListo.size() + mensajesNoListo.size()== 0)
-		{
-			synchronized (vacio) 
-			{
-				try
-				{
-					vacio.wait();
-				}
-				catch(Exception e)
-				{
-					System.out.println("F");
-				}
-			}
-
-		}
-		Mensaje retorno;
-		synchronized (this) 
-		{
-			while(!mensajesListo.contains(mensaje.getId()))
-			{
-				mensaje.dormirCliente();
-			}
-			retorno = mensajesListo.remove(mensaje.getId());
-
-		}
-		synchronized (lleno) 
-		{
-			lleno.notify();	
-		}
-		return retorno;
-
+		clientes--; 
 	}
-	public synchronized Mensaje retirarMensajeNoListo()
+	public int mensajesRestantes()
 	{
-		while(mensajesListo.size() + mensajesNoListo.size()== 0)
-		{
-			synchronized (vacio) 
-			{
-				try
-				{
-					vacio.wait();
-				}
-				catch(Exception e)
-				{
-					System.out.println("F");
-				}
-			}
-
-		}
-		Mensaje retorno;
-		synchronized (this) 
-		{
-			int numero = (int)Math.random()*tamaño;
-			retorno = mensajesNoListo.remove(numero);
-		}
-		synchronized (lleno) 
-		{
-			lleno.notify();	
-		}
-		return retorno;
-
+		return mensajes.size(); 
 	}
+
 }
