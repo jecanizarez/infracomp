@@ -44,10 +44,12 @@ public class Main {
 		 {
 			 int mensajes = Integer.parseInt(prop.getProperty("cliente"+(i+1)));
 			 clientes[i] = new Cliente(i,buffer, mensajes);
+			 clientes[i].setName("Cliente" + i);
 		 }
 		 for(int j = 0; j < numServidores; j++)
 		 {
 			 servidores[j] = new Servidor(buffer);
+			 servidores[j].setName("Servidor" +j);
 		 }
 		 for(int i= 0; i < numServidores; i++)
 		 {
@@ -57,6 +59,8 @@ public class Main {
 		 {
 			 clientes[i].start();
 		 }
+		
+		
 
        
 		

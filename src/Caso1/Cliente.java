@@ -44,6 +44,7 @@ public class Cliente extends Thread {
 		{
 			System.out.println("El cliente "+ id + "va a almacenar el mensaje");
 			mensajes[i].almacenarEnBuffer();
+			mensajes[i].dormirCliente();
 			if(mensajes[i].getListo() && mensajes[i].getNumero() == id+1)
 			{
 				System.out.println("Mi mensaje es correcto");
@@ -51,6 +52,11 @@ public class Cliente extends Thread {
 			else
 			{
 				System.out.println("Mi mensaje no es correcto");
+			}
+			if(i == --numMensajes)
+			{
+				mensajes[i].notificarBuffer();
+				System.out.println("El cliente"+ id+ " se va a retirar");
 			}
 		}
 	}

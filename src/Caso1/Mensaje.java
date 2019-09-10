@@ -72,6 +72,7 @@ public class Mensaje {
 	public void notificarBuffer()
 	{
 		buffer.reducirClientes();
+		
 	}
 	public void setListo()
 	{

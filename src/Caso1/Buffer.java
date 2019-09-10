@@ -46,15 +46,14 @@ public class Buffer {
 		}
 		System.out.println("Se añadio el mensaje del cliente " +mensaje.getId());
 		mensajes.add(mensaje);
-		mensaje.dormirCliente();
+		System.out.println("El peso del buffer es " + mensajes.size());
 	}
 
 	public synchronized  Mensaje retirarMensaje()
 	{
-            
+			notify();
 			Mensaje retorno = mensajes.remove(0);
 			System.out.println("El servidor retiro el mensaje " + retorno.getId());
-			notify();
 			return retorno;
 		
 		
@@ -63,10 +62,15 @@ public class Buffer {
 	public synchronized void reducirClientes()
 	{
 		clientes--; 
+		
 	}
-	public int mensajesRestantes()
+	public synchronized int mensajesRestantes()
 	{
 		return mensajes.size(); 
+	}
+	public int getClientes()
+	{
+		return clientes;
 	}
 
 }
